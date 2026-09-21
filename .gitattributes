@@ -1,0 +1,3 @@
+# Serve and store bytes exactly as authored — no CRLF rewriting, so a hash of the
+# local file equals the hash of the file GitHub Pages serves.
+* -text

@@ -1,0 +1,12 @@
+{
+  "name": "hour-zero",
+  "version": "1.0.0",
+  "private": true,
+  "type": "module",
+  "description": "Hour Zero — keep your own EU CRA Article 14 reporting clock (24 h / 72 h / final report).",
+  "license": "MIT",
+  "scripts": {
+    "test": "node tests/run.mjs",
+    "gate": "node scripts/gate.mjs"
+  }
+}

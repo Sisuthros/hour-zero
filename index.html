@@ -1,0 +1,334 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Hour Zero — keep your own CRA Article 14 reporting clock</title>
+<meta name="description" content="Hour Zero computes the EU Cyber Resilience Act Article 14 reporting deadlines — 24 h early warning, 72 h notification, final report — from the moment you became aware, in your own time zone, offline in your browser. Drafts the report skeleton with the published character ceilings.">
+<meta name="color-scheme" content="light">
+<meta property="og:title" content="Hour Zero — the CRA Article 14 clock you keep yourself">
+<meta property="og:description" content="24 h / 72 h / final report, computed from awareness, not from filing. Offline. No data leaves the page.">
+<meta property="og:type" content="website">
+<link rel="icon" href="favicon.svg" type="image/svg+xml">
+<link rel="stylesheet" href="styles.css">
+</head>
+<body>
+
+<header class="site">
+  <div class="wrap site-inner">
+    <a class="wordmark" href="#top">
+      <svg width="30" height="30" viewBox="0 0 32 32" role="img" aria-label="Hour Zero">
+        <circle cx="16" cy="16" r="13" fill="none" stroke="#0e1116" stroke-width="2.4"></circle>
+        <path d="M16 16 L16 3 A13 13 0 0 1 27.3 22.5" fill="none" stroke="#ffb020" stroke-width="3.6" stroke-linecap="round"></path>
+        <circle cx="16" cy="16" r="2.2" fill="#0e1116"></circle>
+      </svg>
+      <span>
+        <span class="wordmark-text">Hour Zero</span>
+        <span class="wordmark-sub">CRA Article 14 clock</span>
+      </span>
+    </a>
+    <nav class="site">
+      <a href="#clock">Clock</a>
+      <a href="#preflight">Pre-flight</a>
+      <a href="#draft">Draft</a>
+      <a href="#sources">Sources</a>
+      <a href="#selftest">Self-test</a>
+    </nav>
+    <span class="badge-offline">runs offline · nothing leaves this page</span>
+  </div>
+</header>
+
+<main id="top">
+<div class="wrap">
+
+  <section class="hero">
+    <h1>File inside 24 hours, <em>not inside a platform's opinion of 24 hours</em>.</h1>
+    <p class="lead">
+      Since 11 September 2026 a manufacturer in the EU must report an actively exploited vulnerability
+      in its product within 24 hours of becoming aware — and the clock starts at awareness, not at
+      filing. Hour Zero runs that clock for you: the three Article 14 deadlines, in your own time zone,
+      with the two mechanics almost every summary gets wrong, plus a report skeleton sized to the
+      published character ceilings. It never sends anything anywhere.
+    </p>
+    <div class="chips">
+      <span class="chip"><b>Art. 14(2)</b> exploited vulnerability</span>
+      <span class="chip"><b>Art. 14(4)</b> severe incident</span>
+      <span class="chip"><b>24 h / 72 h / final</b></span>
+      <span class="chip">calendar <b>.ics</b> export</span>
+      <span class="chip">source-quoted, <b>not legal advice</b></span>
+    </div>
+  </section>
+
+  <section class="panel" id="clock">
+    <div class="panel-head">
+      <h2>The clock</h2>
+      <p class="hint">Everything below is computed in your browser. Nothing is transmitted, stored or logged.</p>
+    </div>
+
+    <div class="card grid two">
+      <fieldset>
+        <legend>1 · What happened?</legend>
+        <div class="radio-row">
+          <label class="sel">
+            <input type="radio" name="event-type" value="vulnerability" checked>
+            <span><b>Actively exploited vulnerability</b><br><span class="smallprint">Reliable evidence that a malicious actor exploited the flaw in someone's system without permission.</span></span>
+          </label>
+          <label>
+            <input type="radio" name="event-type" value="incident">
+            <span><b>Severe incident</b><br><span class="smallprint">An incident on the Art. 14(5) test affecting the product's security.</span></span>
+          </label>
+        </div>
+        <div id="severity-block" hidden style="margin-top:12px">
+          <p class="hint" style="margin-top:0"><b>Art. 14(5) severity test</b> — either limb makes it severe:</p>
+          <div class="grid">
+            <div>
+              <label class="f" for="sev-a">Does it negatively affect, or could it negatively affect, the product's ability to protect the availability, authenticity, integrity or confidentiality of sensitive or important data or functions?</label>
+              <div class="radio-row">
+                <label><input type="radio" name="severity" data-limb="affectsProtection" value="yes"> Yes</label>
+                <label><input type="radio" name="severity" data-limb="affectsProtection" value="no"> No</label>
+              </div>
+            </div>
+            <div>
+              <label class="f">Has it led, or could it lead, to the introduction or execution of malicious code in the product or in a user's network and information systems?</label>
+              <div class="radio-row">
+                <label><input type="radio" name="severity" data-limb="maliciousCode" value="yes"> Yes</label>
+                <label><input type="radio" name="severity" data-limb="maliciousCode" value="no"> No</label>
+              </div>
+            </div>
+          </div>
+        </div>
+      </fieldset>
+
+      <fieldset>
+        <legend>2 · When did you become aware?</legend>
+        <div class="grid">
+          <div>
+            <label class="f" for="awareness">Awareness moment (local wall time)</label>
+            <input type="datetime-local" id="awareness">
+            <p class="hint">Awareness is when your assessment reached reasonable certainty — the moment the clock attaches. Record it separately from the platform, which does not store it for vulnerabilities at launch.</p>
+          </div>
+          <div>
+            <label class="f" for="tz">Time zone you are planning in</label>
+            <select id="tz"></select>
+            <p class="hint">Used to turn your wall time into one exact instant. Daylight-saving overlaps resolve to the earlier instant, which is the stricter deadline.</p>
+          </div>
+          <div class="actions">
+            <button class="ghost" id="now-button" type="button">Use now</button>
+          </div>
+        </div>
+      </fieldset>
+    </div>
+
+    <div id="clock-banners"></div>
+    <div class="grid stages" id="stages"></div>
+
+    <div class="card" style="margin-top:14px">
+      <div class="grid two">
+        <div id="vuln-only">
+          <label class="f" for="fix-available">When did a corrective or mitigating measure become available? <span class="smallprint">(Art. 14(2)(c): the final report runs 14 days from here, not from awareness)</span></label>
+          <input type="datetime-local" id="fix-available">
+          <p class="hint">Leave empty while no fix exists — Hour Zero then shows the final-report clock as not started rather than inventing a deadline.</p>
+        </div>
+        <div id="incident-only" hidden>
+          <label class="f" for="submitted">When did you submit the 72-hour incident notification? <span class="smallprint">(Art. 14(4)(c): the final report runs one month from that submission)</span></label>
+          <input type="datetime-local" id="submitted">
+          <p class="hint">Leave empty until you have submitted it — the final-report clock has not started before that.</p>
+        </div>
+        <div>
+          <label class="f" for="early-warning-filed">Optional: when did you submit the early warning?</label>
+          <input type="datetime-local" id="early-warning-filed">
+          <p class="hint">Shows where the ENISA platform's reported counter would land versus the legal deadline.</p>
+        </div>
+      </div>
+      <div class="actions">
+        <button id="btn-ics" type="button">Download .ics deadlines</button>
+        <button class="ghost" id="btn-copy-summary" type="button">Copy status summary</button>
+        <button class="ghost" id="btn-print" type="button">Print / PDF</button>
+      </div>
+    </div>
+  </section>
+
+  <section class="panel" id="preflight">
+    <div class="panel-head">
+      <h2>Pre-flight: is this even your filing?</h2>
+      <p class="hint">Before you spend the window on the wrong question. Each answer carries its evidence kind.</p>
+    </div>
+    <div class="card grid two">
+      <div>
+        <label class="f" for="role">Your role for this product</label>
+        <select id="role">
+          <option value="manufacturer">Manufacturer</option>
+          <option value="steward">Open-source software steward</option>
+          <option value="importer">Importer</option>
+          <option value="distributor">Distributor</option>
+        </select>
+      </div>
+      <div>
+        <label class="f" for="eu-market">Is the product made available on the Union market?</label>
+        <select id="eu-market">
+          <option value="yes">Yes</option>
+          <option value="no">No</option>
+          <option value="unsure">Not settled</option>
+        </select>
+      </div>
+    </div>
+    <div class="card" id="scope-verdict" style="margin-top:14px"></div>
+  </section>
+
+  <section class="panel" id="draft">
+    <div class="panel-head">
+      <h2>Draft the filing</h2>
+      <p class="hint">Character ceilings as published by ENISA: <span id="limits-inline"></span>. Draft outside the platform — a backup reporter cannot see another representative's drafts, so a half-written early warning can vanish when a person does.</p>
+    </div>
+    <div class="tabs" role="tablist">
+      <button type="button" data-stage="early_warning" aria-selected="true">Early warning</button>
+      <button type="button" data-stage="notification" aria-selected="false">72-hour notification</button>
+      <button type="button" data-stage="final_report" aria-selected="false">Final report</button>
+    </div>
+    <div class="card">
+      <div id="draft-fields"></div>
+      <div class="actions" id="draft-actions">
+        <button class="ghost" id="btn-copy-md" type="button">Copy markdown</button>
+        <button class="ghost" id="btn-download-md" type="button">Download .md</button>
+        <button class="ghost" id="btn-download-json" type="button">Download .json</button>
+      </div>
+    </div>
+    <div class="card" style="margin-top:14px">
+      <h3>Preview</h3>
+      <pre id="draft-preview" style="white-space:pre-wrap; font:13px/1.5 var(--mono); margin:0; color:var(--ink-soft)"></pre>
+    </div>
+    <div class="banner warn">
+      <strong>This is a clock and a skeleton, not legal advice.</strong>
+      It encodes the regulation's text where the text is unambiguous, and says so when it is not. Check your own
+      situation with your CSIRT, which must provide helpdesk support on Article 14 duties, and with ENISA's helpdesk
+      (cra-srp-helpdesk@enisa.europa.eu).
+    </div>
+  </section>
+
+  <section class="panel" id="sources">
+    <div class="panel-head">
+      <h2>Where each rule comes from</h2>
+      <p class="hint">Quotations are from the Official Journal text of Regulation (EU) 2024/2847. Anything a third party reported is labelled as reported, never as text.</p>
+    </div>
+    <div class="card" style="padding:0; overflow:auto">
+      <table class="src">
+        <thead>
+          <tr><th style="width:16%">Basis</th><th style="width:46%">Rule as Hour Zero implements it</th><th>Source</th></tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>Art. 14(2)(a)</td>
+            <td>Early warning of an actively exploited vulnerability: “without undue delay and in any event within 24 hours of the manufacturer becoming aware of it”. → awareness + 24 h</td>
+            <td><blockquote class="q">OJ text, verbatim</blockquote><a href="https://eur-lex.europa.eu/legal-content/EN/TXT/HTML/?uri=CELEX:32024R2847">EUR-Lex 32024R2847</a></td>
+          </tr>
+          <tr>
+            <td>Art. 14(2)(b)</td>
+            <td>Vulnerability notification: “…within 72 hours of the manufacturer becoming aware of the actively exploited vulnerability”. → awareness + 72 h</td>
+            <td><blockquote class="q">OJ text, verbatim</blockquote>EUR-Lex</td>
+          </tr>
+          <tr>
+            <td>Art. 14(2)(c)</td>
+            <td>Final report: “no later than 14 days after a corrective or mitigating measure is available”. → fix available + 14 d, <b>not</b> awareness + 14 d</td>
+            <td><blockquote class="q">OJ text, verbatim</blockquote>EUR-Lex</td>
+          </tr>
+          <tr>
+            <td>Art. 14(4)(a)–(b)</td>
+            <td>Severe incident: early warning within 24 h, incident notification within 72 h of awareness, both “simultaneously to the CSIRT designated as coordinator … and to ENISA”</td>
+            <td>EUR-Lex</td>
+          </tr>
+          <tr>
+            <td>Art. 14(4)(c)</td>
+            <td>Incident final report: “within one month after the submission of the incident notification under point (b)”. → submission + 1 month</td>
+            <td>EUR-Lex</td>
+          </tr>
+          <tr>
+            <td>Art. 14(5)</td>
+            <td>The severity test Hour Zero asks you, in the regulation's own two limbs (protection of availability/authenticity/integrity/confidentiality; malicious code)</td>
+            <td>EUR-Lex</td>
+          </tr>
+          <tr>
+            <td>Art. 14(6), (8)</td>
+            <td>Intermediate reports on request; and informing impacted users (where appropriate in a structured, machine-readable format)</td>
+            <td>EUR-Lex</td>
+          </tr>
+          <tr>
+            <td>Art. 16(2)</td>
+            <td>Particularly exceptional circumstances limit what ENISA sees; they do not pause your filing clock</td>
+            <td>EUR-Lex; ENISA SRP guidance (reported)</td>
+          </tr>
+          <tr>
+            <td>Art. 69(2)–(3)</td>
+            <td>Installed base: products placed on the market before 11 December 2027 remain in scope for Article 14 reporting, modified or not</td>
+            <td><blockquote class="q">Commission CRA FAQ §5.3 (reported)</blockquote></td>
+          </tr>
+          <tr>
+            <td>Art. 71(2)</td>
+            <td>“However, Article 14 shall apply from 11 September 2026”. Awareness before that date is not reportable</td>
+            <td><blockquote class="q">OJ text, verbatim</blockquote>EUR-Lex</td>
+          </tr>
+          <tr>
+            <td>Art. 24(3)</td>
+            <td>Open-source software stewards: same reporting duties, applying from 11 December 2027</td>
+            <td><blockquote class="q">ENISA SRP launch notice, 11 Sep 2026 (reported)</blockquote></td>
+          </tr>
+          <tr>
+            <td>Platform fields</td>
+            <td>Character ceilings 4000 / 2000 / 800 / 255 / 100 used by the draft panel</td>
+            <td><blockquote class="q">ENISA SRP glossary + interface guidance (reported)</blockquote></td>
+          </tr>
+          <tr>
+            <td>Platform counter</td>
+            <td>Its 72-hour counter has been reported to run 48 hours from submission of the early warning — Hour Zero shows you both numbers</td>
+            <td><blockquote class="q">Third-party review of the platform (reported)</blockquote></td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+    <div class="banner info">
+      <strong>What this tool does not know:</strong> who your coordinating CSIRT is (Art. 14(7) turns on where the
+      cybersecurity decisions for your product are predominantly taken), whether your product is in scope under
+      Art. 2, or what your own legal advisers will say about the day you became aware. Those stay yours.
+    </div>
+  </section>
+
+  <section class="panel" id="selftest">
+    <div class="panel-head">
+      <h2>Self-test</h2>
+      <p class="hint">The same 35 checks the source repository runs in CI, executed here in your browser on the module that just computed your deadlines.</p>
+    </div>
+    <div class="card">
+      <div class="actions" style="margin-top:0">
+        <button id="btn-selftest" type="button">Run the checks</button>
+        <span class="smallprint">Also runnable from a terminal: <code>node tests/run.mjs</code></span>
+      </div>
+      <div id="selftest-summary" class="banner info" style="display:block">not run yet</div>
+      <ul class="testlist" id="selftest-output"></ul>
+    </div>
+  </section>
+
+</div>
+</main>
+
+<footer class="site">
+  <div class="wrap row">
+    <div>
+      <strong>Hour Zero</strong> · v<span id="version">1.0.0</span> ·
+      <a href="https://github.com/Sisuthros/hour-zero">source</a> · MIT licence
+      <div class="smallprint">No cookies, no analytics, no network requests after load, no server to leak to.</div>
+    </div>
+    <div class="smallprint">
+      Not legal advice. Verify against the Official Journal text and your CSIRT's guidance before you file.<br>
+      Made by Photon for the family product competition, 2026-09-21 → 2026-09-28.
+    </div>
+  </div>
+</footer>
+
+<noscript>
+  <div class="wrap">
+    <div class="banner warn">Hour Zero computes everything with JavaScript in your own browser, so it needs JavaScript enabled. Nothing is sent anywhere either way.</div>
+  </div>
+</noscript>
+
+<script type="module" src="app.js"></script>
+</body>
+</html>
