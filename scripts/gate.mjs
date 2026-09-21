@@ -2,13 +2,16 @@
 /**
  * Hour Zero gate. Exit 0 only when:
  *   1. static hygiene holds (no network calls, no external resources, brand present);
+ *   1b. the copy states the final-report triggers, and no surface claims a final report from awareness;
  *   2. the shared 36-check suite is green;
+ *   2b. every digest and the commit line in GATE-RECEIPT.md still describe this tree;
  *   3. the live URL answers 200 with the expected product markers (skipped with --offline).
  *
  * Usage:  node scripts/gate.mjs [--offline] [url]
  */
 import { readFileSync, existsSync } from 'node:fs';
 import { createHash } from 'node:crypto';
+import { execFileSync } from 'node:child_process';
 import { dirname, join, resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { runSuite } from '../tests/suite.mjs';
@@ -34,7 +37,13 @@ const check = (name, condition, detail = '') => {
 const read = (rel) => readFileSync(join(ROOT, rel), 'utf8');
 const sha256 = (rel) => createHash('sha256').update(readFileSync(join(ROOT, rel))).digest('hex');
 
-console.log(`Hour Zero gate — v${VERSION}, ${offline ? 'offline' : LIVE_URL}\n`);
+let head = '';
+try {
+  head = execFileSync('git', ['rev-parse', 'HEAD'], { cwd: ROOT, stdio: 'pipe' }).toString().trim();
+} catch {
+  head = '';
+}
+console.log(`Hour Zero gate — v${VERSION}, ${offline ? 'offline' : LIVE_URL}${head ? `\nrepo HEAD ${head}` : ''}\n`);
 
 /* ---------- 1. static hygiene ---------- */
 const FILES = ['index.html', 'app.js', 'core.js', 'styles.css', 'tests/suite.mjs', 'favicon.svg'];
@@ -57,10 +66,78 @@ const brandHits = ['index.html', 'README.md', 'BRAND.md', 'package.json'].filter
 check('the name "Hour Zero" is used in every surface', brandHits.length === 4, brandHits.join(', '));
 check('brand colour #FFB020 is used in the interface', read('styles.css').includes('#ffb020'));
 
+/* ---------- 1b. the copy states the final-report triggers correctly ---------- */
+const proseFiles = ['index.html', 'README.md', 'BRAND.md', 'GATE-RECEIPT.md'].filter((f) => existsSync(join(ROOT, f)));
+const prose = proseFiles.map((f) => read(f)).join('\n');
+check('the page states the Art. 14(2)(c) final-report trigger',
+  html.includes('no later than 14 days after a corrective or mitigating measure is available'),
+  'fix available + 14 d');
+check('the page states the Art. 14(4)(c) final-report trigger',
+  html.includes('within one month after the submission of the incident notification'),
+  'notification submitted + 1 month');
+const awarenessFinal = prose.match(/final report[^<>]{0,120}(?<!not )from (?:the moment (?:you became|of) )?aware/i);
+check('no surface claims a final report computed from awareness', awarenessFinal === null,
+  awarenessFinal ? `matched: "${awarenessFinal[0].slice(0, 90)}"` : 'none');
+
 /* ---------- 2. the suite ---------- */
 const suite = runSuite();
 check(`test suite green (${suite.passed}/${suite.total})`, suite.failed === 0,
   suite.failed ? suite.results.filter((r) => !r.ok).map((r) => r.name).join('; ') : 'all passed');
+
+/* ---------- 2b. the gate receipt is true (digests + provenance) ---------- */
+const receiptPath = join(ROOT, 'GATE-RECEIPT.md');
+if (!existsSync(receiptPath)) {
+  check('the gate receipt exists', false, 'GATE-RECEIPT.md');
+} else {
+  const receipt = read('GATE-RECEIPT.md');
+  const rows = [];
+  for (const line of receipt.split('\n')) {
+    const m = line.match(/^\|\s*`([0-9a-f]{64})`\s*\|\s*(.+?)\s*\|\s*$/);
+    if (m) rows.push({ hash: m[1], label: m[2] });
+  }
+  const bundleHash = createHash('sha256');
+  for (const file of FILES) bundleHash.update(readFileSync(join(ROOT, file)));
+  const expectedBundle = bundleHash.digest('hex');
+  const mismatches = [];
+  const labelled = new Set();
+  for (const { hash, label } of rows) {
+    const clean = label.replace(/`/g, '').trim();
+    if (/BUNDLE/i.test(clean)) {
+      labelled.add('BUNDLE');
+      if (hash !== expectedBundle) mismatches.push(`BUNDLE (receipt ${hash.slice(0, 12)}… vs actual ${expectedBundle.slice(0, 12)}…)`);
+      continue;
+    }
+    labelled.add(clean);
+    if (!existsSync(join(ROOT, clean))) { mismatches.push(`${clean} (file missing)`); continue; }
+    const actual = sha256(clean);
+    if (actual !== hash) mismatches.push(`${clean} (receipt ${hash.slice(0, 12)}… vs actual ${actual.slice(0, 12)}…)`);
+  }
+  for (const file of FILES) if (!labelled.has(file)) mismatches.push(`${file} (no receipt row)`);
+  if (!labelled.has('BUNDLE')) mismatches.push('BUNDLE (no receipt row)');
+  check(`every digest in the gate receipt matches the tree (${rows.length} rows)`, mismatches.length === 0,
+    mismatches.join('; ') || 'all match');
+
+  const embedded = receipt.match(/Commit:\s*`([0-9a-f]{40})`/);
+  check('the receipt records a full 40-hex commit', Boolean(embedded), embedded ? embedded[1] : 'no `Commit: <sha>` line');
+  if (embedded) {
+    if (!existsSync(join(ROOT, '.git'))) {
+      notes.push('receipt commit provenance check skipped: no .git directory');
+    } else {
+      let same = false;
+      let detail = '';
+      try {
+        execFileSync('git', ['diff', '--quiet', embedded[1], '--', ...FILES], { cwd: ROOT, stdio: 'pipe' });
+        same = true;
+        detail = `served files identical at ${embedded[1].slice(0, 7)} and in this tree`;
+      } catch (error) {
+        detail = error.status === 1
+          ? `served files differ from ${embedded[1].slice(0, 7)}`
+          : `git could not check ${embedded[1].slice(0, 7)}: ${String(error.stderr || error.message).trim().split('\n')[0]}`;
+      }
+      check('the receipt commit still describes the served files', same, detail);
+    }
+  }
+}
 
 /* ---------- 3. live URL ---------- */
 if (offline) {

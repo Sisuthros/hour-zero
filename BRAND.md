@@ -4,14 +4,16 @@
 
 **Hour Zero** — written as two words, capital H and Z, never `HourZero` or `HOURZERO`.
 
-The name is the product's core concept: hour zero is the moment you become aware, and everything the tool
-does is measured from there. It is also the differentiator, because the platform's own counters start
-somewhere else and the two final-report clocks start somewhere else again.
+The name is the product's core concept: hour zero is the moment you become aware, and the two urgent
+deadlines — 24 hours and 72 hours — are measured from there. It is also the differentiator, because the
+platform's own counters start somewhere else and the two final-report clocks start somewhere else again.
 
 ## Positioning (one sentence)
 
-*Hour Zero keeps the EU Cyber Resilience Act Article 14 reporting clock yourself — 24 hours, 72 hours and
-a final report computed from the moment you became aware, offline in your browser.*
+*Hour Zero keeps the EU Cyber Resilience Act Article 14 reporting clocks yourself — 24 hours and 72 hours
+from the moment you became aware, and each final report from the moment its own clock starts (a corrective
+or mitigating measure available + 14 days; an incident notification submitted + one month) — offline in
+your browser.*
 
 Longer form for a landing page: the clock is a legal fact, and every tool between you and the filing is
 somebody else's clock. Keep your own.
