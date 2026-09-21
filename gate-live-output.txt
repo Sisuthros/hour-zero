@@ -1,0 +1,46 @@
+Hour Zero gate — v1.0.0, https://sisuthros.github.io/hour-zero/
+repo HEAD 585d593e61329a39af11c83e424722cf5f4291d9
+
+PASS  present: index.html
+PASS  present: app.js
+PASS  present: core.js
+PASS  present: styles.css
+PASS  present: tests/suite.mjs
+PASS  present: favicon.svg
+PASS  no external resource is fetched by the page — none
+PASS  no fetch/XHR/beacon in the shipped runtime — app.js + core.js
+PASS  no remote font or stylesheet import
+PASS  page declares a language and a title
+PASS  the name "Hour Zero" is used in every surface — index.html, README.md, BRAND.md, package.json
+PASS  brand colour #FFB020 is used in the interface
+PASS  the page states the Art. 14(2)(c) final-report trigger — fix available + 14 d
+PASS  the page states the Art. 14(4)(c) final-report trigger — notification submitted + 1 month
+PASS  no surface claims a final report computed from awareness — none
+PASS  test suite green (36/36) — all passed
+PASS  every digest in the gate receipt matches the tree (12 rows) — all match
+PASS  the receipt records a full 40-hex commit — 7f8ab73c74ecc460b2fd719e9b96005cdfbafe6d
+PASS  the receipt commit still describes the served files — served files identical at 7f8ab73 and in this tree
+PASS  live URL answers 200 (https://sisuthros.github.io/hour-zero/) — HTTP 200
+PASS  live page is Hour Zero — title + Article 14 markers present
+PASS  live core.js is served — HTTP 200
+PASS  live self-test module is served — HTTP 200
+PASS  live favicon is served — HTTP 200
+PASS  served core.js is byte-identical to the local artifact — 75452c2350acaa702f20a46556f592a0bc88f5a8132d54814540eb08690d09dd both sides
+PASS  served index.html matches the local artifact byte for byte — 6a95b73406d2b26fef6749da0f2511363b24cbeb028ea8fa783151a871af1e3a both sides
+PASS  served app.js matches the local artifact byte for byte — 94f0d10506175485b01b4b97de90ab4078c20f1539224cdf81e614377f015c73 both sides
+PASS  served core.js matches the local artifact byte for byte — 75452c2350acaa702f20a46556f592a0bc88f5a8132d54814540eb08690d09dd both sides
+PASS  served styles.css matches the local artifact byte for byte — 2632cbfc1fdfb91c06dc76c11c8f7d1b40975026916cfbc2e0fd2c89cd6a194d both sides
+PASS  served tests/suite.mjs matches the local artifact byte for byte — 387220e9b5c0725e929a9873ccd194003a8bf1f448486fbbccb29301222799cf both sides
+PASS  served favicon.svg matches the local artifact byte for byte — e3c7af9935dea9b912bceff6ed06e107844afad70b3286eda8e5ee5f16a49c62 both sides
+
+sha256
+  6a95b73406d2b26fef6749da0f2511363b24cbeb028ea8fa783151a871af1e3a  index.html
+  94f0d10506175485b01b4b97de90ab4078c20f1539224cdf81e614377f015c73  app.js
+  75452c2350acaa702f20a46556f592a0bc88f5a8132d54814540eb08690d09dd  core.js
+  2632cbfc1fdfb91c06dc76c11c8f7d1b40975026916cfbc2e0fd2c89cd6a194d  styles.css
+  387220e9b5c0725e929a9873ccd194003a8bf1f448486fbbccb29301222799cf  tests/suite.mjs
+  e3c7af9935dea9b912bceff6ed06e107844afad70b3286eda8e5ee5f16a49c62  favicon.svg
+  764255e69719930b79192c5c2ae2f2873de6d8d8ea958e5a496c5e4211008021  BUNDLE(6 files)
+
+GATE OK
+GATE_EXIT=0
