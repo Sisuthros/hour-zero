@@ -83,6 +83,14 @@ if (offline) {
     const liveHash = createHash('sha256').update(coreLive.body).digest('hex');
     check('served core.js is byte-identical to the local artifact', liveHash === sha256('core.js'),
       liveHash === sha256('core.js') ? `${liveHash} both sides` : `live ${liveHash} vs local ${sha256('core.js')}`);
+    for (const file of FILES) {
+      const response = await fetch(LIVE_URL + file, { redirect: 'follow' });
+      const body = await response.text();
+      const live = createHash('sha256').update(body).digest('hex');
+      const local = sha256(file);
+      check(`served ${file} matches the local artifact byte for byte`, response.status === 200 && live === local,
+        response.status !== 200 ? `HTTP ${response.status}` : live === local ? `${live} both sides` : `live ${live} vs local ${local}`);
+    }
   } catch (error) {
     check(`live URL reachable (${LIVE_URL})`, false, error.message);
   }
