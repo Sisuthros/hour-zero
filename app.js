@@ -312,6 +312,7 @@ function renderDraft() {
         el('span', { text: `${len} / ${check.limit} characters` }),
         len > check.limit ? el('span', { class: 'over', text: 'over the ceiling' }) : el('span', { text: '' }),
       );
+      refreshDraftGate();
       renderPreview();
     });
     field.appendChild(input);
@@ -323,7 +324,7 @@ function renderDraft() {
     host.appendChild(field);
   }
 
-  const gate = el('div', { class: 'banner ' + (report.ok ? 'good' : 'warn') });
+  const gate = el('div', { class: 'banner ' + (report.ok ? 'good' : 'warn'), id: 'draft-gate' });
   gate.textContent = report.ok
     ? 'Every required field for this stage is present and within the published character ceilings.'
     : 'Not ready to file: ' + report.checks.filter((c) => !c.ok).map((c) => `${c.label} (${c.reason})`).join('; ');
@@ -331,6 +332,17 @@ function renderDraft() {
 
   $('#draft-actions').dataset.stage = stageId;
   renderPreview();
+}
+
+/** Re-evaluate the filing gate as the user types, without rebuilding the fields. */
+function refreshDraftGate() {
+  const gate = document.querySelector('#draft-gate');
+  if (!gate) return;
+  const report = checkDraft({ fields: stageDraftFields(state.draftStage), values: state.draftValues });
+  gate.className = 'banner ' + (report.ok ? 'good' : 'warn');
+  gate.textContent = report.ok
+    ? 'Every required field for this stage is present and within the published character ceilings.'
+    : 'Not ready to file: ' + report.checks.filter((c) => !c.ok).map((c) => `${c.label} (${c.reason})`).join('; ');
 }
 
 function currentDoc() {

@@ -80,6 +80,9 @@ if (offline) {
     check('live self-test module is served', suiteLive.status === 200 && suiteLive.body.includes('runSuite'), `HTTP ${suiteLive.status}`);
     const ico = await fetch(LIVE_URL + 'favicon.svg');
     check('live favicon is served', ico.status === 200, `HTTP ${ico.status}`);
+    const liveHash = createHash('sha256').update(coreLive.body).digest('hex');
+    check('served core.js is byte-identical to the local artifact', liveHash === sha256('core.js'),
+      liveHash === sha256('core.js') ? `${liveHash} both sides` : `live ${liveHash} vs local ${sha256('core.js')}`);
   } catch (error) {
     check(`live URL reachable (${LIVE_URL})`, false, error.message);
   }
