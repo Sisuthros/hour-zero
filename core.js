@@ -425,6 +425,32 @@ function icsStamp(ms) {
   return new Date(ms).toISOString().replace(/[-:]/g, '').replace(/\.\d{3}/, '');
 }
 
+/**
+ * RFC 5545 §3.1 folding: no content line longer than 75 octets; continuations
+ * start with a single space. Counted in UTF-8 octets, not characters, so the
+ * em dash and curly quotes in our text fold correctly.
+ */
+function foldLine(line) {
+  const encoder = new TextEncoder();
+  if (encoder.encode(line).length <= 75) return line;
+  const out = [];
+  let current = '';
+  let bytes = 0;
+  for (const char of line) {
+    const size = encoder.encode(char).length;
+    const limit = out.length === 0 ? 75 : 74; // continuation lines carry a leading space
+    if (bytes + size > limit) {
+      out.push(current);
+      current = '';
+      bytes = 0;
+    }
+    current += char;
+    bytes += size;
+  }
+  if (current) out.push(current);
+  return out.join('\r\n ');
+}
+
 const ALARM_BEFORE_MS = {
   early_warning: 2 * HOUR,
   notification: 6 * HOUR,
@@ -464,7 +490,7 @@ export function buildIcs(schedule, meta = {}) {
     );
   }
   lines.push('END:VCALENDAR');
-  return lines.join('\r\n') + '\r\n';
+  return lines.map(foldLine).join('\r\n') + '\r\n';
 }
 
 /* ------------------------------------------------------------------ *

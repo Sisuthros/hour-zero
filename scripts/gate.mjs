@@ -2,7 +2,7 @@
 /**
  * Hour Zero gate. Exit 0 only when:
  *   1. static hygiene holds (no network calls, no external resources, brand present);
- *   2. the shared 35-check suite is green;
+ *   2. the shared 36-check suite is green;
  *   3. the live URL answers 200 with the expected product markers (skipped with --offline).
  *
  * Usage:  node scripts/gate.mjs [--offline] [url]

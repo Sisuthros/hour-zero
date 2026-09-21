@@ -72,7 +72,7 @@ move, which is why the tool's clock is derived only from the text.
 ## 5. How to re-verify in five minutes
 
 ```bash
-node tests/run.mjs                       # 35 checks
+node tests/run.mjs                       # 36 checks
 node scripts/gate.mjs                    # + static hygiene + live URL 200
 curl -sI https://sisuthros.github.io/hour-zero/ | head -1
 ```

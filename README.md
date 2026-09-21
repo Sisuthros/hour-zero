@@ -20,7 +20,7 @@ Hour Zero is a static, offline, zero-dependency web tool that:
 - drafts each filing stage with the published character ceilings (4000 / 2000 / 800 / 255 / 100);
 - labels every scoping answer by evidence kind — `regulation-text`, `commission-guidance`,
   `reported-by-authority`, `our-interpretation`;
-- ships its own **35-check test suite** that runs in-browser from the page, and in Node from the CLI.
+- ships its own **36-check test suite** that runs in-browser from the page, and in Node from the CLI.
 
 No server, no accounts, no analytics, no cookies, no network requests after page load. Vulnerability data
 is the last thing you want to paste into someone's backend.
@@ -28,7 +28,7 @@ is the last thing you want to paste into someone's backend.
 ## Run it
 
 ```bash
-node tests/run.mjs          # 35 checks, exit 0 = all green
+node tests/run.mjs          # 36 checks, exit 0 = all green
 python -m http.server 8787  # then open http://127.0.0.1:8787/
 node scripts/gate.mjs       # full gate: static checks + tests + live URL 200
 ```
@@ -42,7 +42,7 @@ Live: <https://sisuthros.github.io/hour-zero/>
 | `core.js` | The whole legal clock as pure functions: schedule, time zones, status, ICS, drafts, scoping. No DOM, no network. |
 | `app.js` | Browser wiring only. |
 | `index.html`, `styles.css`, `favicon.svg` | The product page and the brand. |
-| `tests/suite.mjs` | 35 checks, shared by the browser self-test and the CLI. |
+| `tests/suite.mjs` | 36 checks, shared by the browser self-test and the CLI. |
 | `tests/run.mjs` | Node runner. |
 | `scripts/gate.mjs` | The gate command: static hygiene + suite + live URL. |
 | `EVIDENCE.md` | Claim → basis → how to verify, with verbatim regulation quotes. |

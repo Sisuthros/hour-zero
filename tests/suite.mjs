@@ -336,8 +336,25 @@ export function runSuite() {
     return 'escaping verified';
   });
 
-  /* ---- platform reconciliation ---- */
+  test('calendar lines are folded to 75 octets and unfold cleanly', () => {
+    const s = computeSchedule({
+      eventType: EVENT_TYPES.vulnerability,
+      awarenessMs: awareness,
+      fixAvailableMs: fixAvailable,
+      tz: 'UTC',
+    });
+    const ics = buildIcs(s, { nowMs: awareness });
+    const encoder = new TextEncoder();
+    const lines = ics.split('\r\n');
+    const tooLong = lines.filter((line) => encoder.encode(line).length > 75);
+    ok(tooLong.length === 0, `lines over 75 octets: ${tooLong.length}`);
+    const unfolded = ics.replace(/\r\n /g, '');
+    ok(unfolded.includes('a corrective or mitigating measure is available'), 'unfolding restores the full description');
+    ok(unfolded.includes('Source: https://eur-lex.europa.eu'), 'unfolding restores the source URL');
+    return `${lines.length} folded lines, none over 75 octets`;
+  });
 
+  /* ---- platform reconciliation ---- */
   test('platform counter is reconciled without overriding the legal clock', () => {
     const s = computeSchedule({ eventType: EVENT_TYPES.vulnerability, awarenessMs: awareness, tz: 'UTC' });
     const r = reconcileWithPlatform(s, addHours(awareness, 5));
