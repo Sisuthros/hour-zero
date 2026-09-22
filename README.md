@@ -48,6 +48,16 @@ Live: <https://sisuthros.github.io/hour-zero/>
 | `EVIDENCE.md` | Claim → basis → how to verify, with verbatim regulation quotes. |
 | `BRAND.md` | Name, positioning, palette, wordmark rules. |
 
+## Paid help, if you want it
+
+The tool is free under MIT and always will be. What costs money is a person doing the
+setup with you: configuring the evidence log for your product line, running a timed
+dry-run of a fictional case with your team, and reviewing your real notification drafts
+before you submit them. Details and prices are on the
+[project page](https://sisuthros.github.io/cra24/).
+
+Business customers only.
+
 ## Limits, stated plainly
 
 Hour Zero is a clock and a drafting surface, **not legal advice**. It does not know who your coordinating
